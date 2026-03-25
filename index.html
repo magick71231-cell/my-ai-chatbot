@@ -8,20 +8,21 @@
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; height: 100vh; display: flex; justify-content: center; align-items: center; }
   .chat-container { width: 400px; height: 600px; background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); display: flex; flex-direction: column; }
-  .chat-header { background: #4285f4; color: white; padding: 20px; border-radius: 20px 20px 0 0; text-align: center; font-size: 18px; font-weight: bold; }
+  .chat-header { background: #f55036; color: white; padding: 20px; border-radius: 20px 20px 0 0; text-align: center; font-size: 18px; font-weight: bold; }
   .chat-messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
   .message { max-width: 80%; padding: 12px 16px; border-radius: 18px; font-size: 14px; line-height: 1.5; }
-  .user-message { background: #4285f4; color: white; align-self: flex-end; border-radius: 18px 18px 4px 18px; }
+  .user-message { background: #f55036; color: white; align-self: flex-end; border-radius: 18px 18px 4px 18px; }
   .bot-message { background: #f0f2f5; color: #333; align-self: flex-start; border-radius: 18px 18px 18px 4px; }
-  .error-message { background: #ffe0e0; color: #c00; align-self: flex-start; border-radius: 18px; font-size: 12px; }
+  .error-message { background: #ffe0e0; color: #c00; align-self: flex-start; border-radius: 18px; font-size: 12px; padding: 10px; }
   .chat-input { display: flex; padding: 15px; gap: 10px; border-top: 1px solid #eee; }
   .chat-input input { flex: 1; padding: 12px 16px; border: 1px solid #ddd; border-radius: 25px; outline: none; font-size: 14px; }
-  .chat-input button { background: #4285f4; color: white; border: none; padding: 12px 20px; border-radius: 25px; cursor: pointer; font-size: 14px; }
+  .chat-input button { background: #f55036; color: white; border: none; padding: 12px 20px; border-radius: 25px; cursor: pointer; font-size: 14px; }
+  .chat-input button:hover { background: #d43d23; }
 </style>
 </head>
 <body>
 <div class="chat-container">
-  <div class="chat-header">🤖 나만의 AI 챗봇</div>
+  <div class="chat-header">⚡ 나만의 AI 챗봇</div>
   <div class="chat-messages" id="messages">
     <div class="message bot-message">안녕하세요! 무엇이든 물어보세요 😊</div>
   </div>
@@ -32,7 +33,7 @@
 </div>
 
 <script>
-  const API_KEY = "AIzaSyDSDOWGcTNEzfcX3IyW-Ek1UoyaYLIWa9I";
+  const API_KEY ="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";
 
   async function sendMessage() {
     const input = document.getElementById('userInput');
@@ -46,35 +47,24 @@
     messages.scrollTop = messages.scrollHeight;
 
     try {
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${API_KEY}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: userText }] }]
-          })
-        }
-      );
+      const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${API_KEY}`
+        },
+        body: JSON.stringify({
+          model: 'llama-3.3-70b-versatile',
+          messages: [
+            { role: 'system', content: '당신은 친절한 AI 어시스턴트입니다. 한국어로 대답해주세요.' },
+            { role: 'user', content: userText }
+          ],
+          max_tokens: 1000
+        })
+      });
 
       const data = await response.json();
-
       document.getElementById('typing').remove();
 
       if (!response.ok) {
-        const errMsg = data?.error?.message || `오류코드: ${response.status}`;
-        messages.innerHTML += `<div class="message error-message">❌ 오류: ${errMsg}</div>`;
-      } else {
-        const botText = data.candidates[0].content.parts[0].text;
-        messages.innerHTML += `<div class="message bot-message">${botText}</div>`;
-      }
-
-    } catch(e) {
-      document.getElementById('typing')?.remove();
-      messages.innerHTML += `<div class="message error-message">❌ 네트워크 오류: ${e.message}</div>`;
-    }
-    messages.scrollTop = messages.scrollHeight;
-  }
-</script>
-</body>
-</html>
+        const errMsg = data?.error?.message || `오류코드:
