@@ -27,13 +27,18 @@
     <div class="message bot-message">안녕하세요! 무엇이든 물어보세요 😊</div>
   </div>
   <div class="chat-input">
-    <input type="text" id="userInput" placeholder="메시지를 입력하세요..." onkeypress="if(event.key==='Enter')sendMessage()">
-    <button onclick="sendMessage()">전송</button>
+    <input type="text" id="userInput" placeholder="메시지를 입력하세요...">
+    <button id="sendBtn">전송</button>
   </div>
 </div>
 
 <script>
-  const API_KEY ="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";
+  const API_KEY = "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";
+
+  document.getElementById('sendBtn').addEventListener('click', sendMessage);
+  document.getElementById('userInput').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') sendMessage();
+  });
 
   async function sendMessage() {
     const input = document.getElementById('userInput');
@@ -59,12 +64,3 @@
             { role: 'system', content: '당신은 친절한 AI 어시스턴트입니다. 한국어로 대답해주세요.' },
             { role: 'user', content: userText }
           ],
-          max_tokens: 1000
-        })
-      });
-
-      const data = await response.json();
-      document.getElementById('typing').remove();
-
-      if (!response.ok) {
-        const errMsg = data?.error?.message || `오류코드:
